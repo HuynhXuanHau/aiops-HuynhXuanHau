@@ -1,0 +1,139 @@
+{
+  "clusters_analyzed": 5,
+  "results": [
+    {
+      "cluster_id": "c-000-000",
+      "graph_top3": [
+        [
+          "payment-svc",
+          1.0
+        ],
+        [
+          "checkout-svc",
+          0.93
+        ],
+        [
+          "edge-lb",
+          0.88
+        ]
+      ],
+      "root_cause": "payment-svc",
+      "class": "connection_pool_exhaustion",
+      "confidence": 1.0,
+      "actions": [
+        "Rollback to v3.1. Scale pool 50 → 100 cushion. Add pool monitor alert > 80%."
+      ],
+      "reasoning": "Service 'payment-svc' có điểm cao nhất dựa trên đồ thị (nhiều downstream phụ thuộc) và xuất hiện cảnh báo sớm nhất trong chuỗi.",
+      "similar_incidents": [
+        "INC-2025-11-08",
+        "INC-2025-09-05",
+        "INC-2026-01-04"
+      ],
+      "method": "graph+retrieval"
+    },
+    {
+      "cluster_id": "c-001-000",
+      "graph_top3": [
+        [
+          "recommender-svc",
+          1.0
+        ]
+      ],
+      "root_cause": "recommender-svc",
+      "class": "memory_leak",
+      "confidence": 1.0,
+      "actions": [
+        "Patch leak; rollback v3.0 trong khi chờ. Add gc.collect() trong handler."
+      ],
+      "reasoning": "Service 'recommender-svc' có điểm cao nhất dựa trên đồ thị (nhiều downstream phụ thuộc) và xuất hiện cảnh báo sớm nhất trong chuỗi.",
+      "similar_incidents": [
+        "INC-2025-08-02",
+        "INC-2025-10-28",
+        "INC-2026-03-07"
+      ],
+      "method": "graph+retrieval"
+    },
+    {
+      "cluster_id": "c-002-000",
+      "graph_top3": [
+        [
+          "payment-svc",
+          1.0
+        ],
+        [
+          "edge-lb",
+          0.63
+        ]
+      ],
+      "root_cause": "payment-svc",
+      "class": "connection_pool_exhaustion",
+      "confidence": 1.0,
+      "actions": [
+        "Rollback v2.6. Add max_idle_time + leak detection. Increase pool 50 → 100 cushion."
+      ],
+      "reasoning": "Service 'payment-svc' có điểm cao nhất dựa trên đồ thị (nhiều downstream phụ thuộc) và xuất hiện cảnh báo sớm nhất trong chuỗi.",
+      "similar_incidents": [
+        "INC-2025-09-05",
+        "INC-2025-11-08",
+        "INC-2026-01-04"
+      ],
+      "method": "graph+retrieval"
+    },
+    {
+      "cluster_id": "c-003-000",
+      "graph_top3": [
+        [
+          "search-svc",
+          1.0
+        ],
+        [
+          "checkout-svc",
+          0.6
+        ]
+      ],
+      "root_cause": "search-svc",
+      "class": "n_plus_1",
+      "confidence": 1.0,
+      "actions": [
+        "Batch fetch related products. Add monitoring query count / request."
+      ],
+      "reasoning": "Service 'search-svc' có điểm cao nhất dựa trên đồ thị (nhiều downstream phụ thuộc) và xuất hiện cảnh báo sớm nhất trong chuỗi.",
+      "similar_incidents": [
+        "INC-2026-01-29",
+        "INC-2026-05-25",
+        "INC-2025-07-04"
+      ],
+      "method": "graph+retrieval"
+    },
+    {
+      "cluster_id": "c-004-000",
+      "graph_top3": [
+        [
+          "payment-svc",
+          1.0
+        ],
+        [
+          "notification-svc",
+          0.67
+        ],
+        [
+          "edge-lb",
+          0.6
+        ]
+      ],
+      "root_cause": "payment-svc",
+      "class": "connection_pool_exhaustion",
+      "confidence": 1.0,
+      "actions": [
+        "Rollback v2.6. Add max_idle_time + leak detection. Increase pool 50 → 100 cushion."
+      ],
+      "reasoning": "Service 'payment-svc' có điểm cao nhất dựa trên đồ thị (nhiều downstream phụ thuộc) và xuất hiện cảnh báo sớm nhất trong chuỗi.",
+      "similar_incidents": [
+        "INC-2025-09-05",
+        "INC-2025-11-08",
+        "INC-2026-01-04"
+      ],
+      "method": "graph+retrieval"
+    }
+  ]
+}
