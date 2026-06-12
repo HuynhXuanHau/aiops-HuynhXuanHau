@@ -128,3 +128,9 @@ python grade.py --audit audit.jsonl --expected eval/expected.json
 - Confidence calibration: vẽ reliability diagram và dùng Platt scaling / isotonic regression trên `p_success` lịch sử.
 - Audit trail: `audit.jsonl` đã có bằng chứng; có thể mở rộng với trường `explainability` (đoạn trace, template đã khớp).
 - Safety: thêm whitelist/blacklist cho hành động tự động theo dịch vụ nhạy cảm.
+
+## Next steps (ưu tiên đề xuất)
+
+1. Triển khai OOD detector và hiệu chỉnh ngưỡng (giảm false auto-action).
+2. Tạo script vẽ reliability diagram và tune `alpha/beta` bằng cross-validation trên lịch sử.
+3. Thêm unit tests cho `features.py` và `retrieval.py` để tăng độ bền khi thay đổi normalization.
