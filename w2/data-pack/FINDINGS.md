@@ -1,10 +1,8 @@
 # KẾT LUẬN
 
-# KẾT LUẬN
-
 ## 1. Hàm tương đồng đã chọn cho Layer 2 và lý do
 
-Tôi đã chọn một hàm tương đồng kết hợp bao gồm:
+Em đã chọn một hàm tương đồng kết hợp bao gồm:
 - chồng chéo mẫu log (log templates) — so sánh các thông điệp log đã được chuẩn hoá với `log_signatures` trong lịch sử,
 - khớp bất thường trace trên cùng một cạnh (`from`/`to`) sử dụng tỉ lệ sai khác p99 và độ tương đồng tỉ lệ lỗi,
 - độ tương đồng Jaccard trên danh sách dịch vụ bị ảnh hưởng.
@@ -30,7 +28,7 @@ Báo cáo audit cho E05 cho thấy `rollback_service` có tương đồng mạnh
 
 ## 3. Giải thích đầy đủ phép tính EV (expected value) cho một ca đánh giá
 
-Tôi chọn E05 vì nó minh hoạ rõ ràng sự đánh đổi trong quyết định.
+Em chọn E05 vì nó minh hoạ rõ ràng sự đánh đổi trong quyết định.
 
 Tập ứng viên trong `audit.jsonl` cho E05:
 - `rollback_service` trên `payment-svc`
@@ -130,12 +128,3 @@ python grade.py --audit audit.jsonl --expected eval/expected.json
 - Confidence calibration: vẽ reliability diagram và dùng Platt scaling / isotonic regression trên `p_success` lịch sử.
 - Audit trail: `audit.jsonl` đã có bằng chứng; có thể mở rộng với trường `explainability` (đoạn trace, template đã khớp).
 - Safety: thêm whitelist/blacklist cho hành động tự động theo dịch vụ nhạy cảm.
-
-## Next steps (ưu tiên đề xuất)
-
-1. Triển khai OOD detector và hiệu chỉnh ngưỡng (giảm false auto-action).
-2. Tạo script vẽ reliability diagram và tune `alpha/beta` bằng cross-validation trên lịch sử.
-3. Thêm unit tests cho `features.py` và `retrieval.py` để tăng độ bền khi thay đổi normalization.
-
----
-Tôi đã mở rộng file này; nếu bạn muốn, tôi có thể: (a) thêm biểu đồ reliability từ kết quả eval; (b) triển khai OOD detector; hoặc (c) chèn phần giải thích chi tiết cho từng bản ghi trong `audit.jsonl` vào `FINDINGS.md`.
