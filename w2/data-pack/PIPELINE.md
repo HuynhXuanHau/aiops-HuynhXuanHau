@@ -1,14 +1,6 @@
 # Pipeline: Trích xuất → Truy xuất → Chọn hành động
 
-Mô tả ngắn: luồng gồm 3 khối liên tiếp. Mỗi khối nhận một cấu trúc JSON/dict và xuất một cấu trúc chuẩn để khối tiếp theo tiêu thụ.
-
-```mermaid
-flowchart LR
-  A[Raw incident JSON] --> B[Layer 1: Feature extraction]
-  B --> C[Layer 2: Retrieval + voting]
-  C --> D[Layer 3: Decision]
-  D --> E[audit.jsonl (one-line JSON)]
-```
+![alt text](image.png)
 
 ## 1) Input (Sự cố thô)
 - File: `eval/E**.json`
@@ -84,4 +76,3 @@ flowchart LR
 - Cổng an toàn ngăn việc lạm dụng `page_oncall` và chặn auto-action khi utility ≤ 0.
 
 ---
-File added as a canonical reference before/while coding; adjust weights/thresholds in `retrieval.py` and `decision.py`.

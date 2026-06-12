@@ -46,5 +46,3 @@ done
 - `topology.json` — same structure as `eval/E*.json.topology` (nodes + edges).
 
 ## Submission
-
-See handout §7.
