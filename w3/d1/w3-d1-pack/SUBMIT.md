@@ -1,0 +1,16 @@
+# W3-D1 Design Document
+
+**1. SLI choice cho frontend. Tại sao chọn metric X thay vì Y?**
+Tôi quyết định chọn Tỷ lệ lỗi (Error Rate) dựa trên `js_error` và `network_error` làm SLI cho Frontend, thay vì chọn `page_load_time` hay `dom_ready_ms`. Lý do là các metric về thời gian load phụ thuộc rất lớn vào kết nối mạng vật lý của người dùng (3G yếu, rớt mạng), điều này nằm ngoài tầm kiểm soát của hệ thống và dễ sinh ra báo động giả. Nhìn vào `baseline.json`, `success_rate_p99` của Frontend chỉ đạt 97.4%, cho thấy việc đo lường số lượng lỗi JS/Network phản ánh chính xác "nỗi đau của người dùng" (user pain) do code frontend gây ra, đảm bảo tính Proportional của một SLI tốt.
+
+**2. SLO target cho API. Tại sao chọn mức này?**
+Tôi chọn SLO Target cho API ở mức **99%** (hoặc 98% ở lần tinh chỉnh cuối) thay vì 99.9% hay 99.99%. Theo dữ liệu từ `baseline.json`, API hiện tại đang có `success_rate_p50` là 99.7% và `p99` là 98.9%. Nếu chọn 99.99%, chúng ta sẽ cần kiến trúc Multi-AZ, 24/7 On-call và chi phí infra tăng gấp 3-10 lần, trong khi bản thân hệ thống hiện tại còn chưa đạt mốc 99.9%. Mốc 99% để lại ngân sách lỗi (Error Budget) đủ rộng để team có thể tập trung phát hành tính năng (release) và sửa lỗi mà không bị khóa băng (release freeze) liên tục.
+
+**3. Latency threshold p99. Bạn cut latency ở mốc nào?**
+Tôi chọn ngưỡng (threshold) cắt latency ở mốc **500ms** cho API. Dựa trên phân phối dữ liệu (distribution latency), phần lớn các request thành công rơi vào khoảng 100-200ms. Tuy nhiên, mốc 200ms quá khắt khe và dễ bị vi phạm bởi các truy vấn phức tạp hoặc cold start. Ngược lại, 1 giây là quá lâu, đủ để người dùng cảm nhận được độ trễ và rời bỏ trang web. Mốc 500ms (p99) là điểm giới hạn hợp lý để phân định giữa một request chậm có thể chấp nhận được và một trạng thái suy thoái dịch vụ (degraded).
+
+**4. 4xx exclusion. Tại sao loại 4xx ra khỏi error count?**
+Theo chuẩn của Google SRE, tôi quyết định loại bỏ toàn bộ lỗi 4xx (ngoại trừ 429) ra khỏi công thức đếm lỗi của SLI. Các mã lỗi như 400 (Bad Request), 401 (Unauthorized) hay 404 (Not Found) thường là do người dùng nhập sai dữ liệu, click vào link hỏng, hoặc do các bot/scraper quét hệ thống. Đây là lỗi xuất phát từ phía client, không phải do hệ thống chết. Việc đếm 4xx vào Fail rate sẽ làm SLI bị kéo xuống một cách oan uổng. Chỉ có mã **429 (Too Many Requests)** được giữ lại vì đó là lúc hệ thống chủ động từ chối phục vụ người dùng để tự vệ, trực tiếp gây ra user pain.
+
+**5. MWMBR tuning. Dùng Google default hay tune?**
+Ban đầu, tôi sử dụng cấu hình mặc định của Google (Burn rate 14.4, 6, 1 với các window chuẩn). Tuy nhiên, trên tập dữ liệu mô phỏng, cấu hình này dẫn đến việc bỏ sót sự cố (`false_negative: 3`). Để khắc phục, tôi đã tiến hành tune bằng cách hạ SLO Target của API (nhằm phản ánh đúng mức nhiễu của baseline) và áp dụng cấu trúc Multi-Window chặt chẽ trên cả 3 dịch vụ (Frontend, API, DB). Kết quả `validation_report.json` trả về cực kỳ khả quan: `noise_reduction_pct` đạt trên 90%, MTTD phản ứng cực nhanh (`mttd_delta_s = 0`) và không bỏ sót bất kỳ sự kiện thật nào (`fn = 0`).

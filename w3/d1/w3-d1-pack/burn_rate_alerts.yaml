@@ -1,0 +1,54 @@
+groups:
+  - name: frontend
+    rules:
+      - alert: Frontend_SLO_BurnRate_Tier1
+        expr: |
+          ( (sum(rate(frontend_events_total{js_error="true"}[1h])) + sum(rate(frontend_events_total{network_error="true"}[1h]))) / sum(rate(frontend_events_total[1h])) ) / (1 - 0.985) >= 14.4
+          AND ( (sum(rate(frontend_events_total{js_error="true"}[5m])) + sum(rate(frontend_events_total{network_error="true"}[5m]))) / sum(rate(frontend_events_total[5m])) ) / (1 - 0.985) >= 14.4
+        labels: { severity: page, tier: "1", layer: frontend, service: frontend }
+      - alert: Frontend_SLO_BurnRate_Tier2
+        expr: |
+          ( (sum(rate(frontend_events_total{js_error="true"}[6h])) + sum(rate(frontend_events_total{network_error="true"}[6h]))) / sum(rate(frontend_events_total[6h])) ) / (1 - 0.985) >= 6
+          AND ( (sum(rate(frontend_events_total{js_error="true"}[30m])) + sum(rate(frontend_events_total{network_error="true"}[30m]))) / sum(rate(frontend_events_total[30m])) ) / (1 - 0.985) >= 6
+        labels: { severity: page, tier: "2", layer: frontend, service: frontend }
+      - alert: Frontend_SLO_BurnRate_Tier3
+        expr: |
+          ( (sum(rate(frontend_events_total{js_error="true"}[3d])) + sum(rate(frontend_events_total{network_error="true"}[3d]))) / sum(rate(frontend_events_total[3d])) ) / (1 - 0.985) >= 1
+          AND ( (sum(rate(frontend_events_total{js_error="true"}[6h])) + sum(rate(frontend_events_total{network_error="true"}[6h]))) / sum(rate(frontend_events_total[6h])) ) / (1 - 0.985) >= 1
+        labels: { severity: ticket, tier: "3", layer: frontend, service: frontend }
+
+  - name: api
+    rules:
+      - alert: Api_SLO_BurnRate_Tier1
+        expr: |
+          ( sum(rate(http_requests_total{status=~"5..|429"}[1h])) / sum(rate(http_requests_total[1h])) ) / (1 - 0.975) >= 14.4
+          AND ( sum(rate(http_requests_total{status=~"5..|429"}[5m])) / sum(rate(http_requests_total[5m])) ) / (1 - 0.975) >= 14.4
+        labels: { severity: page, tier: "1", layer: api, service: api }
+      - alert: Api_SLO_BurnRate_Tier2
+        expr: |
+          ( sum(rate(http_requests_total{status=~"5..|429"}[6h])) / sum(rate(http_requests_total[6h])) ) / (1 - 0.975) >= 6
+          AND ( sum(rate(http_requests_total{status=~"5..|429"}[30m])) / sum(rate(http_requests_total[30m])) ) / (1 - 0.975) >= 6
+        labels: { severity: page, tier: "2", layer: api, service: api }
+      - alert: Api_SLO_BurnRate_Tier3
+        expr: |
+          ( sum(rate(http_requests_total{status=~"5..|429"}[3d])) / sum(rate(http_requests_total[3d])) ) / (1 - 0.975) >= 1
+          AND ( sum(rate(http_requests_total{status=~"5..|429"}[6h])) / sum(rate(http_requests_total[6h])) ) / (1 - 0.975) >= 1
+        labels: { severity: ticket, tier: "3", layer: api, service: api }
+
+  - name: db
+    rules:
+      - alert: Db_SLO_BurnRate_Tier1
+        expr: |
+          ( sum(rate(db_queries_total{success="false"}[1h])) / sum(rate(db_queries_total[1h])) ) / (1 - 0.995) >= 14.4
+          AND ( sum(rate(db_queries_total{success="false"}[5m])) / sum(rate(db_queries_total[5m])) ) / (1 - 0.995) >= 14.4
+        labels: { severity: page, tier: "1", layer: db, service: db }
+      - alert: Db_SLO_BurnRate_Tier2
+        expr: |
+          ( sum(rate(db_queries_total{success="false"}[6h])) / sum(rate(db_queries_total[6h])) ) / (1 - 0.995) >= 6
+          AND ( sum(rate(db_queries_total{success="false"}[30m])) / sum(rate(db_queries_total[30m])) ) / (1 - 0.995) >= 6
+        labels: { severity: page, tier: "2", layer: db, service: db }
+      - alert: Db_SLO_BurnRate_Tier3
+        expr: |
+          ( sum(rate(db_queries_total{success="false"}[3d])) / sum(rate(db_queries_total[3d])) ) / (1 - 0.995) >= 1
+          AND ( sum(rate(db_queries_total{success="false"}[6h])) / sum(rate(db_queries_total[6h])) ) / (1 - 0.995) >= 1
+        labels: { severity: ticket, tier: "3", layer: db, service: db }
