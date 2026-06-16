@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. HỆ THỐNG GIÁM SÁT (Monitoring Stack)
+  # ==========================================
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    container_name: w3d1-prometheus
+    ports: ["9090:9090"]
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./burn_rate_alerts.yaml:/etc/prometheus/alerts.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=14d
+      - --web.enable-lifecycle
+    networks:
+      - aiops_network
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: w3d1-alertmanager
+    ports: ["9093:9093"]
+    volumes:
+      - ./configs/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - aiops_network
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: w3d1-grafana
+    ports: ["3000:3000"]
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    networks:
+      - aiops_network
+
+  # ==========================================
+  # 2. BỘ NÃO AIOPS (FastAPI Pipeline)
+  # ==========================================
+  # aiops-pipeline:
+    # build: ./pipeline  # Thư mục chứa code FastAPI của bạn
+    # container_name: aiops-pipeline
+    # ports: ["8000:8000"]
+    # environment:
+      # - PROMETHEUS_URL=http://prometheus:9090
+    # networks:
+      # - aiops_network
+# 
+  # ==========================================
+  # 3. HỆ THỐNG 10 MICROSERVICES (Target Stack)
+  # ==========================================
+  frontend:
+    image: traefik/whoami # Thay bằng 'build: ./services/frontend' nếu bạn có code
+    container_name: frontend
+    ports: ["8080:80"]    # Port expose ra ngoài để chạy synthetic_probe.sh
+    networks:
+      - aiops_network
+
+  api-gateway:
+    image: traefik/whoami
+    container_name: api-gateway
+    networks:
+      - aiops_network
+
+  payment-svc:
+    image: traefik/whoami
+    container_name: payment-svc
+    networks:
+      - aiops_network
+
+  inventory-svc:
+    image: traefik/whoami
+    container_name: inventory-svc
+    networks:
+      - aiops_network
+
+  notification-svc:
+    image: traefik/whoami
+    container_name: notification-svc
+    networks:
+      - aiops_network
+
+  checkout-svc:
+    image: traefik/whoami
+    container_name: checkout-svc
+    networks:
+      - aiops_network
+
+  auth-svc:
+    image: traefik/whoami
+    container_name: auth-svc
+    networks:
+      - aiops_network
+
+  log-collector:
+    image: traefik/whoami
+    container_name: log-collector
+    networks:
+      - aiops_network
+
+  dns-resolver:
+    image: traefik/whoami
+    container_name: dns-resolver
+    networks:
+      - aiops_network
+
+  cache-svc:
+    image: redis:alpine   # Dùng Redis giả lập làm cache service
+    container_name: cache-svc
+    networks:
+      - aiops_network
+
+# Định nghĩa mạng chung để 10 service, Prom và Pipeline có thể gọi nhau qua tên miền
+networks:
+  aiops_network:
+    driver: bridge
