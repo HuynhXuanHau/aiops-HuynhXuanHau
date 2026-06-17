@@ -1,22 +1,22 @@
 # W3-D2 Submission — Huỳnh Xuân Hậu
 
 ## 3 thứ tôi học được về AIOps pipeline của mình
-1. **Sự nhiễu loạn của Topology:** Các lỗi ở tầng mạng chung (như DNS) rất dễ khiến AIOps bị đánh lừa và đổ tội cho Gateway, vì Gateway là nơi hứng chịu và ghi nhận hậu quả nặng nề nhất.
-2. **Tầm quan trọng của External Probe:** Theo dõi hệ thống bằng nội bộ (Prometheus) là chưa đủ. Có những lúc metric nội bộ vẫn báo xanh nhưng user thực tế (Probe) đã bị timeout do nghẽn cổ chai ở luồng ngoài.
-3. **Giá trị của Cooldown:** Nếu không có thời gian nghỉ (120s) giữa các bài test, các alert sẽ bị dính chùm vào nhau tạo thành một cụm (cluster) khổng lồ, khiến mọi thuật toán RCA đều sụp đổ.
+1. **Phát hiện lỗi (Detect) là dễ, tìm đúng bệnh (RCA) mới khó:** Bảng điểm 10/10 Detected cho thấy giám sát hoạt động tốt, nhưng RCA 4/10 chứng minh rằng nếu không có đồ thị Topology, AI chỉ đang "đoán mò".
+2. **Thiên kiến của thuật toán (RCA Bias):** Pipeline rất dễ bị lừa bởi "loudest service" (service la hét to nhất). Nếu Payment sinh ra quá nhiều log lỗi, AI sẽ mặc định nó là thủ phạm dù gốc rễ nằm ở DNS hay Gateway.
+3. **Giá trị của Chaos Engineering:** Chạy 10 bài test tự động giúp phơi bày ngay lập tức điểm yếu cốt lõi của Correlator mà Unit test hay Load test thông thường không thể nào thấy được.
 
 ## 1 fault mà tôi mong pipeline catch nhưng nó miss
-- **Experiment:** `6_auth_clock_skew` (Lệch giờ hệ thống).
-- **Why I expected detection:** Lệch giờ sẽ phá hỏng toàn bộ các phiên xác thực JWT, tôi đinh ninh hệ thống sẽ sụp đổ và báo động đỏ ngay lập tức.
-- **Why pipeline missed (hypothesis):** Việc từ chối JWT sinh ra lỗi 401 (Unauthorized). Tuy nhiên, bộ luật (rules) của Prometheus hiện tại chỉ được cài đặt để kích hoạt cảnh báo (firing) khi lỗi 5xx tăng vọt, do đó lỗi 4xx bị coi là "hành vi bình thường của user" và bị bỏ qua hoàn toàn.
+- **Experiment:** `9_dns_slowdown`
+- **Why I expected detection & correct RCA:** DNS chậm sẽ ảnh hưởng đến mọi HTTP call, tôi kỳ vọng đồ thị RCA sẽ chỉ ra được gốc rễ từ tầng Network.
+- **Why pipeline missed (hypothesis):** Pipeline đã bắt được lỗi (Detected: Y) nhưng lại bắt nhầm thủ phạm là `payment-svc`. Lý do là AIOps hiện tại chỉ gom cụm dựa trên mốc thời gian (temporal cluster) mà không tra cứu theo chiều sâu (dependency graph).
 
 ## 1 trade-off trong design pipeline mà tôi muốn rethink
-**Trade-off giữa Thời gian phát hiện (MTTD) và Cảnh báo giả (False Alarms):**
-Hiện tại, pipeline yêu cầu một bất thường phải duy trì liên tục trong 30-60 giây thì mới nhóm thành sự cố để tránh bị nhiễu do mạng chập chờn. Việc này giúp False Alarm = 0, nhưng lại đánh đổi bằng MTTD khá chậm. Sắp tới tôi muốn áp dụng Multi-burn rate (cảnh báo theo nhiều ngưỡng thời gian khác nhau) để vừa phát hiện nhanh lỗi lớn, vừa không bị báo động giả với lỗi nhỏ.
+**Trade-off giữa Thời gian bắt lỗi (MTTD) và Độ chính xác (Accuracy):**
+Hiện tại, pipeline mất trung bình 96 giây để phát hiện lỗi. Nếu tôi giảm cửa sổ thời gian xuống để bắt lỗi trong 10 giây, nguy cơ bắt nhầm (False Positives/Noise) sẽ tăng vọt. Sự đánh đổi này là không đáng, tôi sẽ chọn giữ MTTD ở mốc ~1 phút nhưng đầu tư mạnh hơn vào thuật toán nâng cấp RCA.
 
 ## Scoreboard summary
-- **detected:** 8/10
-- **rca_correct:** 6/8
-- **mttd_p50:** 25s
+- **detected:** 10/10
+- **rca_correct:** 4/10
+- **mttd_p50:** 96s
 - **false_alarms:** 0
-- **verdict:** ĐẠT (Passed Acceptance Checklist)
+- **verdict:** FAILED RCA ACCEPTANCE 

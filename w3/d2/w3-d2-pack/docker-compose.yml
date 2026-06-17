@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   # ==========================================
-  # 1. HỆ THỐNG GIÁM SÁT (Monitoring Stack)
+  # 1. HỆ THỐNG GIÁM SÁT
   # ==========================================
   prometheus:
     image: prom/prometheus:v2.50.0
@@ -39,82 +37,92 @@ services:
       - aiops_network
 
   # ==========================================
-  # 2. BỘ NÃO AIOPS (FastAPI Pipeline)
-  # ==========================================
-  # aiops-pipeline:
-    # build: ./pipeline  # Thư mục chứa code FastAPI của bạn
-    # container_name: aiops-pipeline
-    # ports: ["8000:8000"]
-    # environment:
-      # - PROMETHEUS_URL=http://prometheus:9090
-    # networks:
-      # - aiops_network
-# 
-  # ==========================================
-  # 3. HỆ THỐNG 10 MICROSERVICES (Target Stack)
+  # 2. HỆ THỐNG 10 MICROSERVICES (REAL MOCK)
   # ==========================================
   frontend:
-    image: traefik/whoami # Thay bằng 'build: ./services/frontend' nếu bạn có code
+    build: ./mock_service
     container_name: frontend
-    ports: ["8080:80"]    # Port expose ra ngoài để chạy synthetic_probe.sh
+    ports: ["8080:80"]
+    environment:
+      - SERVICE_NAME=frontend
+      - UPSTREAMS=api-gateway
     networks:
       - aiops_network
 
   api-gateway:
-    image: traefik/whoami
+    build: ./mock_service
     container_name: api-gateway
+    environment:
+      - SERVICE_NAME=api-gateway
+      - UPSTREAMS=payment-svc,inventory-svc,checkout-svc
     networks:
       - aiops_network
 
   payment-svc:
-    image: traefik/whoami
+    build: ./mock_service
     container_name: payment-svc
+    environment:
+      - SERVICE_NAME=payment-svc
     networks:
       - aiops_network
 
   inventory-svc:
-    image: traefik/whoami
+    build: ./mock_service
     container_name: inventory-svc
-    networks:
-      - aiops_network
-
-  notification-svc:
-    image: traefik/whoami
-    container_name: notification-svc
+    environment:
+      - SERVICE_NAME=inventory-svc
     networks:
       - aiops_network
 
   checkout-svc:
-    image: traefik/whoami
+    build: ./mock_service
     container_name: checkout-svc
+    environment:
+      - SERVICE_NAME=checkout-svc
+      - UPSTREAMS=payment-svc,inventory-svc
+    networks:
+      - aiops_network
+
+  notification-svc:
+    build: ./mock_service
+    container_name: notification-svc
+    environment:
+      - SERVICE_NAME=notification-svc
     networks:
       - aiops_network
 
   auth-svc:
-    image: traefik/whoami
+    build: ./mock_service
     container_name: auth-svc
+    environment:
+      - SERVICE_NAME=auth-svc
     networks:
       - aiops_network
 
   log-collector:
-    image: traefik/whoami
+    build: ./mock_service
     container_name: log-collector
+    environment:
+      - SERVICE_NAME=log-collector
     networks:
       - aiops_network
 
   dns-resolver:
-    image: traefik/whoami
+    build: ./mock_service
     container_name: dns-resolver
+    environment:
+      - SERVICE_NAME=dns-resolver
     networks:
       - aiops_network
 
   cache-svc:
-    image: redis:alpine   # Dùng Redis giả lập làm cache service
+    build: ./mock_service
     container_name: cache-svc
+    environment:
+      - SERVICE_NAME=cache-svc
     networks:
       - aiops_network
 
-# Định nghĩa mạng chung để 10 service, Prom và Pipeline có thể gọi nhau qua tên miền
 networks:
   aiops_network:
     driver: bridge

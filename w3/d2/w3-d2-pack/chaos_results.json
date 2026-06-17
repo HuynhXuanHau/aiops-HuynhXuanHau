@@ -1,0 +1,232 @@
+[
+  {
+    "id": "1_payment_latency",
+    "name": "1_payment_latency",
+    "detected": true,
+    "mttd": 94,
+    "rca_service": "payment-svc",
+    "rca_correct": true,
+    "observed_at_ts": 1781683044,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781683138,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 94,
+      "detected": true
+    }
+  },
+  {
+    "id": "2_payment_loss",
+    "name": "2_payment_loss",
+    "detected": true,
+    "mttd": 94,
+    "rca_service": "payment-svc",
+    "rca_correct": true,
+    "observed_at_ts": 1781683260,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781683354,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 94,
+      "detected": true
+    }
+  },
+  {
+    "id": "3_inventory_kill",
+    "name": "3_inventory_kill",
+    "detected": true,
+    "mttd": 93,
+    "rca_service": "payment-svc",
+    "rca_correct": false,
+    "observed_at_ts": 1781683476,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781683569,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 93,
+      "detected": true
+    }
+  },
+  {
+    "id": "4_gateway_cpu",
+    "name": "4_gateway_cpu",
+    "detected": true,
+    "mttd": 160,
+    "rca_service": "payment-svc",
+    "rca_correct": false,
+    "observed_at_ts": 1781683691,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781683851,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 160,
+      "detected": true
+    }
+  },
+  {
+    "id": "5_payment_db_memory",
+    "name": "5_payment_db_memory",
+    "detected": true,
+    "mttd": 94,
+    "rca_service": "payment-svc",
+    "rca_correct": true,
+    "observed_at_ts": 1781683973,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781684067,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 94,
+      "detected": true
+    }
+  },
+  {
+    "id": "6_auth_clock_skew",
+    "name": "6_auth_clock_skew",
+    "detected": true,
+    "mttd": 156,
+    "rca_service": "payment-svc",
+    "rca_correct": false,
+    "observed_at_ts": 1781684189,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781684345,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 156,
+      "detected": true
+    }
+  },
+  {
+    "id": "7_log_disk_fill",
+    "name": "7_log_disk_fill",
+    "detected": true,
+    "mttd": 160,
+    "rca_service": "payment-svc",
+    "rca_correct": false,
+    "observed_at_ts": 1781684467,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781684627,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 160,
+      "detected": true
+    }
+  },
+  {
+    "id": "8_frontend_gateway_partition",
+    "name": "8_frontend_gateway_partition",
+    "detected": true,
+    "mttd": 96,
+    "rca_service": "payment-svc",
+    "rca_correct": false,
+    "observed_at_ts": 1781684749,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781684845,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 96,
+      "detected": true
+    }
+  },
+  {
+    "id": "9_dns_slowdown",
+    "name": "9_dns_slowdown",
+    "detected": true,
+    "mttd": 159,
+    "rca_service": "payment-svc",
+    "rca_correct": false,
+    "observed_at_ts": 1781684967,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781685126,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 159,
+      "detected": true
+    }
+  },
+  {
+    "id": "10_checkout_retry_storm",
+    "name": "10_checkout_retry_storm",
+    "detected": true,
+    "mttd": 94,
+    "rca_service": "payment-svc",
+    "rca_correct": true,
+    "observed_at_ts": 1781685248,
+    "raw": {
+      "alerts": [
+        {
+          "fire_ts": 1781685342,
+          "alertname": "ChaosDetected"
+        }
+      ],
+      "rca": {
+        "root_service": "payment-svc",
+        "confidence": 0.95
+      },
+      "mttd_seconds": 94,
+      "detected": true
+    }
+  }
+]

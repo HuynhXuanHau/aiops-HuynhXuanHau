@@ -1,7 +1,6 @@
 global:
   scrape_interval: 5s
-rule_files:
-  - /etc/prometheus/alerts.yml
+
 scrape_configs:
   - job_name: 'microservices'
     static_configs:
@@ -11,3 +10,11 @@ scrape_configs:
         - 'payment-svc:80'
         - 'inventory-svc:80'
         - 'checkout-svc:80'
+        - 'notification-svc:80'
+        - 'auth-svc:80'
+        - 'log-collector:80'
+        - 'dns-resolver:80'
+        - 'cache-svc:80'
+        - 'payment-db:9187'
+        - 'inventory-db:9187'
+        - 'kafka:9187'

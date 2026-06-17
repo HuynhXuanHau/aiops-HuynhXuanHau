@@ -1,3 +1,23 @@
 groups:
-  - name: dummy-alerts
-    rules: [] 
+  - name: w3d2-chaos-rules
+    rules:
+      # 1. Bắt lỗi sập Container (Ví dụ: bài 3, bài 5)
+      - alert: ServiceDown
+        expr: up{job="microservices"} == 0
+        for: 10s
+        labels:
+          severity: critical
+
+      # 2. Bắt lỗi HTTP 5xx tăng vọt (Ví dụ: bài 2 loss, bài 10 cascade_retry)
+      - alert: HighErrorRate
+        expr: sum by (instance) (rate(http_requests_total{status=~"5.."}[1m])) / sum by (instance) (rate(http_requests_total[1m])) > 0.1
+        for: 10s
+        labels:
+          severity: critical
+
+      # 3. Bắt lỗi nghẽn CPU hoặc trễ mạng (Ví dụ: bài 1 latency, bài 4 cpu)
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum by (instance, le) (rate(http_request_duration_seconds_bucket[1m]))) > 0.5
+        for: 10s
+        labels:
+          severity: critical

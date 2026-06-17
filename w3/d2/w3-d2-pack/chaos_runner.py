@@ -49,7 +49,7 @@ def query_pipeline_rca(window_start: int, window_end: int) -> dict:
         return {"error": str(e)}
     
 def build_inject_cmd(exp: dict) -> list[str]:
-    """TODO #1 — Dùng 100% Pumba Docker để tránh lỗi thiếu tool Linux trong container."""
+    """Sử dụng Regex (re2) để Pumba tự động tìm đúng container bất chấp tên bị Docker đổi."""
     fault_type = exp.get("fault_type", "")
     target = exp.get("target") or exp.get("blast_radius", {}).get("target", "")
     
@@ -59,39 +59,38 @@ def build_inject_cmd(exp: dict) -> list[str]:
         
     dur_sec = str(duration_str).replace("s", "")
     
+    pumba_target = f"re2:.*{target}.*"
+    
     # Base command gọi Pumba thông qua Docker
     pumba_base = ["docker", "run", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock", "gaiaadm/pumba"]
 
     if fault_type == "latency":
-        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "500", target]
+        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "500", pumba_target]
         
     elif fault_type == "network_loss":
-        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "loss", "--percent", "30", target]
+        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "loss", "--percent", "30", pumba_target]
         
     elif fault_type in ["availability", "memory"]:
-        # Giả lập OOM Kill (đầy RAM) hoặc sập Pod bằng cách ép tắt đột ngột
-        return pumba_base + ["kill", "--signal", "SIGKILL", target]
+        return pumba_base + ["kill", "--signal", "SIGKILL", pumba_target]
         
     elif fault_type == "cpu_saturation":
-        # Giả lập nghẽn CPU (xử lý rất chậm) bằng độ trễ 1500ms
-        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "1500", target]
+        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "1500", pumba_target]
         
     elif fault_type == "disk_fill":
-        # Giả lập nghẽn đọc/ghi ổ đĩa bằng độ trễ mạng 800ms
-        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "800", target]
+        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "800", pumba_target]
         
     elif fault_type == "time_skew":
-        # Giả lập lỗi time_skew (Auth treo không xác thực được) bằng cách đóng băng tiến trình
-        return pumba_base + ["pause", "--duration", f"{dur_sec}s", target]
+        return pumba_base + ["pause", "--duration", f"{dur_sec}s", pumba_target]
         
     elif fault_type == "network_partition":
-        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "loss", "--percent", "100", target]
+        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "loss", "--percent", "100", pumba_target]
         
     elif fault_type == "dns_latency":
-        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "2000", target]
+        return pumba_base + ["netem", "--duration", f"{dur_sec}s", "delay", "--time", "2000", pumba_target]
         
     elif fault_type in ["cascade_retry", "http_error"]:
-        return pumba_base + ["kill", "--signal", "SIGKILL", "payment-svc"]
+        # Bài test 10 cũng phải update regex
+        return pumba_base + ["kill", "--signal", "SIGKILL", "re2:.*payment-svc.*"]
         
     else:
         print(f"Cảnh báo: Chưa hỗ trợ fault_type '{fault_type}'.")
