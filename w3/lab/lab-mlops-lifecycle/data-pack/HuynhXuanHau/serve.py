@@ -24,27 +24,20 @@ import mlflow.sklearn
 import numpy as np
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response
-from prometheus_client import Counter, Gauge, Histogram, generate_latest, CONTENT_TYPE_LATEST, REGISTRY
+from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from pydantic import BaseModel
 
-# Kiểm tra và khởi tạo an toàn tránh trùng lặp khi Uvicorn Reload
-if "serve_requests_total" in REGISTRY._names_to_collectors:
-    _serve_requests = REGISTRY._names_to_collectors["serve_requests_total"]
-else:
-    _serve_requests = Counter("serve_requests_total", "Total predict requests")
+_registry = CollectorRegistry()
 
-if "serve_predict_latency_seconds" in REGISTRY._names_to_collectors:
-    _serve_latency = REGISTRY._names_to_collectors["serve_predict_latency_seconds"]
-else:
-    _serve_latency = Histogram(
-        "serve_predict_latency_seconds",
-        "Predict endpoint latency in seconds",
-        buckets=[0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5],
-    )
-
-if "serve_active_version" in REGISTRY._names_to_collectors:
-    _serve_active_version = REGISTRY._names_to_collectors["serve_active_version"]
-else:
-    _serve_active_version = Gauge("serve_active_version", "Currently loaded model version number")
+# Prometheus metrics for serve.py
+_serve_requests = Counter("predict_requests", "Total predict requests", registry=_registry)
+_serve_latency = Histogram(
+    "serve_predict_latency_seconds",
+    "Predict endpoint latency in seconds",
+    buckets=[0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5],
+    registry=_registry,
+)
+_serve_active_version = Gauge("serve_active_version", "Currently loaded model version number", registry=_registry)
 
 MODEL_NAME = "anomaly-detector"
 MODEL_URI = f"models:/{MODEL_NAME}@production"
@@ -108,7 +101,7 @@ class VersionResponse(BaseModel):
 @app.get("/metrics")
 def metrics():
     """Expose Prometheus metrics for scraping."""
-    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+    return Response(generate_latest(_registry), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.post("/predict", response_model=PredictResponse)

@@ -9,3 +9,4 @@ __pycache__/
 w3/d1/w3-d1-pack/data/access_log.jsonl
 w3/d1/w3-d1-pack/data/frontend_rum.jsonl
 w3/d1/w3-d1-pack/promtool.exe
+.csv
