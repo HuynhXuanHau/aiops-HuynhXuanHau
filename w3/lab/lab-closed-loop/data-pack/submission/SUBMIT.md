@@ -2,7 +2,7 @@
 
 ## Thông tin
 
-- Họ tên: Nguyễn Văn A
+- Họ tên: Huỳnh Xuân Hậu
 - Decision engine: Rule-based (`RUNBOOK_MAP` trong `config.yaml`)
 - Python: 3.12, uv 0.4.x
 - Docker Compose: v2.27
