@@ -1,0 +1,37 @@
+[
+  {
+    "ts": "2026-06-19T10:04:36",
+    "source": "docker",
+    "event": "stop billing-svc"
+  },
+  {
+    "ts": "2026-06-19T10:04:36",
+    "source": "docker",
+    "event": "stop index-svc"
+  },
+  {
+    "ts": "2026-06-19T10:04:36",
+    "source": "docker",
+    "event": "stop placement-svc"
+  },
+  {
+    "ts": "2026-06-19T10:04:50",
+    "source": "prom",
+    "event": "alert=ServiceDown state=firing"
+  },
+  {
+    "ts": "2026-06-19T10:05:00",
+    "source": "pipeline",
+    "event": "pipeline-alert=HighAnomalyScore svc=billing"
+  },
+  {
+    "ts": "2026-06-19T10:05:01",
+    "source": "pipeline",
+    "event": "pipeline-alert=HighAnomalyScore svc=index"
+  },
+  {
+    "ts": "2026-06-19T10:05:01",
+    "source": "pipeline",
+    "event": "pipeline-alert=HighAnomalyScore svc=placement"
+  }
+]
